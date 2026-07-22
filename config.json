@@ -1,0 +1,23 @@
+{
+    "general": {
+        "check_interval": 3,
+        "launch_delay": 8,
+        "retry_delay": 15,
+        "max_retry": 3
+    },
+
+    "accounts": [
+        {
+            "name": "Account 1",
+            "package": "com.roblox.client1",
+            "private_server": "roblox://placeID=000000&linkCode=XXXXXXXX",
+            "enabled": true
+        },
+        {
+            "name": "Account 2",
+            "package": "com.roblox.client2",
+            "private_server": "roblox://placeID=000000&linkCode=XXXXXXXX",
+            "enabled": false
+        }
+    ]
+}
