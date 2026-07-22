@@ -1,6 +1,8 @@
 import json
 import time
 
+from launcher import Launcher
+
 
 def load_config():
     with open("config.json", "r", encoding="utf-8") as f:
@@ -8,6 +10,7 @@ def load_config():
 
 
 def validate_config(config):
+
     if "accounts" not in config:
         raise Exception("accounts tidak ditemukan")
 
@@ -15,22 +18,23 @@ def validate_config(config):
         raise Exception("Minimal harus ada 1 akun")
 
     if len(config["accounts"]) > 8:
-        raise Exception("Maksimal 8 akun")
+        raise Exception("Maksimal hanya 8 akun")
 
 
 def print_accounts(config):
-    print("=" * 40)
-    print(" Roblox Auto Rejoiner")
-    print("=" * 40)
+
+    print("=" * 45)
+    print("      Roblox Auto Rejoiner")
+    print("=" * 45)
 
     for account in config["accounts"]:
-        if account["enabled"]:
-            print(f"[ON ] {account['name']}")
-            print(f"      Package : {account['package']}")
-        else:
-            print(f"[OFF] {account['name']}")
 
-    print("=" * 40)
+        status = "ON" if account["enabled"] else "OFF"
+
+        print(f"[{status}] {account['name']}")
+        print(f"      Package : {account['package']}")
+
+    print("=" * 45)
 
 
 def main():
@@ -41,10 +45,39 @@ def main():
 
     print_accounts(config)
 
-    print("Configuration Loaded.\n")
+    general = config["general"]
+
+    launcher = Launcher(
+        launch_delay=general["launch_delay"]
+    )
+
+    print("\nConfiguration Loaded.")
+
+    # Launch semua akun yang aktif
+    for account in config["accounts"]:
+
+        if not account["enabled"]:
+            continue
+
+        print(f"\nLaunching {account['name']}...")
+
+        success = launcher.relaunch(
+            package=account["package"],
+            private_server=account["private_server"]
+        )
+
+        if success:
+            print(f"{account['name']} berhasil dijalankan.")
+        else:
+            print(f"{account['name']} gagal dijalankan.")
+
+    print("\nMasuk ke monitoring loop...\n")
 
     while True:
-        time.sleep(config["general"]["check_interval"])
+
+        # Tahap 3 nanti monitor akan dipanggil di sini
+
+        time.sleep(general["check_interval"])
 
 
 if __name__ == "__main__":
