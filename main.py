@@ -2,6 +2,8 @@ import json
 import time
 
 from launcher import Launcher
+from monitor import Monitor
+from recovery import Recovery
 
 
 def load_config():
@@ -51,15 +53,37 @@ def main():
         launch_delay=general["launch_delay"]
     )
 
-    print("\nConfiguration Loaded.")
+    recovery = Recovery(
+        launcher=launcher,
+        retry_delay=general["retry_delay"],
+        max_retry=general["max_retry"]
+    )
 
-    # Launch semua akun yang aktif
+    monitors = []
+
     for account in config["accounts"]:
 
         if not account["enabled"]:
             continue
 
-        print(f"\nLaunching {account['name']}...")
+        monitor = Monitor(
+            package=account["package"]
+        )
+
+        monitors.append(
+            {
+                "account": account,
+                "monitor": monitor
+            }
+        )
+
+    print("\nConfiguration Loaded.")
+
+    print("\nLaunching enabled accounts...\n")
+
+    for item in monitors:
+
+        account = item["account"]
 
         success = launcher.relaunch(
             package=account["package"],
@@ -67,17 +91,32 @@ def main():
         )
 
         if success:
-            print(f"{account['name']} berhasil dijalankan.")
+            print(f"[OK] {account['name']} launched.")
         else:
-            print(f"{account['name']} gagal dijalankan.")
+            print(f"[FAIL] {account['name']} failed to launch.")
 
-    print("\nMasuk ke monitoring loop...\n")
+    print("\nMonitoring started...\n")
 
     while True:
 
-        # Tahap 3 nanti monitor akan dipanggil di sini
+        for item in monitors:
 
-        time.sleep(general["check_interval"])
+            account = item["account"]
+            monitor = item["monitor"]
+
+            status = monitor.update()
+
+            print(
+                f"[{account['name']}] {status}"
+            )
+
+            if monitor.needs_recovery():
+
+                recovery.recover(account)
+
+        time.sleep(
+            general["check_interval"]
+        )
 
 
 if __name__ == "__main__":
