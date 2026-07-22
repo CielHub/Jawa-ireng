@@ -8,10 +8,6 @@ class Launcher:
         self.launch_delay = launch_delay
 
     def run(self, command):
-        """
-        Menjalankan command shell.
-        Mengembalikan True jika berhasil.
-        """
         try:
             result = subprocess.run(
                 command,
@@ -27,16 +23,13 @@ class Launcher:
             return False
 
     def force_stop(self, package):
-        """
-        Force stop Roblox.
-        """
+
         cmd = f"su -c 'am force-stop {package}'"
+
         return self.run(cmd)
 
     def launch(self, package):
-        """
-        Membuka Roblox clone.
-        """
+
         cmd = (
             f"su -c 'monkey "
             f"-p {package} "
@@ -51,9 +44,7 @@ class Launcher:
         return success
 
     def join_private_server(self, private_server):
-        """
-        Membuka link Private Server.
-        """
+
         cmd = (
             "su -c "
             f"'am start "
@@ -64,9 +55,6 @@ class Launcher:
         return self.run(cmd)
 
     def relaunch(self, package, private_server):
-        """
-        Force stop -> Launch -> Join PS
-        """
 
         self.force_stop(package)
 
